@@ -1,4 +1,4 @@
-const { initializeDatabase, closeDatabase, sequelize } = require('../src/database/connection');
+const { initializeDatabase, sequelize } = require('../src/database/connection');
 const { Product } = require('../src/models/product');
 
 // Set test environment

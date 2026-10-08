@@ -1,5 +1,5 @@
 const { When, Then, BeforeAll, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
-const { Builder, By, Key, until, Select } = require('selenium-webdriver');
+const { Builder, By, until, Select } = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
 const assert = require('assert');
 
@@ -41,6 +41,7 @@ async function getButton(buttonText) {
 }
 
 When('I visit the {string}', async function (pageName) {
+  assert.ok(pageName, 'A page name is required');
   await driver.get(BASE_URL + '/');
 });
 
@@ -66,7 +67,11 @@ When('I select {string} in the {string} dropdown', async function (value, dropdo
   await select.selectByVisibleText(value);
 });
 
-
+When('I press the {string} button', async function (buttonText) {
+  const button = await getButton(buttonText);
+  await driver.wait(until.elementIsVisible(button), 10000);
+  await button.click();
+});
 
 When('I copy the {string} field', async function (fieldName) {
   const field = await getField(fieldName);
@@ -108,5 +113,22 @@ When('I change {string} to {string}', async function (fieldName, newValue) {
   await field.sendKeys(newValue);
 });
 
+Then('I should see {string} in the results', async function (expectedText) {
+  const results = await driver.findElement(By.id('search_results'));
+  const actualText = await results.getText();
+  assert.ok(actualText.includes(expectedText), `Expected to see "${expectedText}" in the results`);
+});
 
+Then('I should not see {string} in the results', async function (unexpectedText) {
+  const results = await driver.findElement(By.id('search_results'));
+  const actualText = await results.getText();
+  assert.strictEqual(actualText.includes(unexpectedText), false, `Did not expect to see "${unexpectedText}" in the results`);
+});
+
+Then('I should see the message {string}', async function (expectedMessage) {
+  const message = await driver.findElement(By.id('flash_message'));
+  await driver.wait(until.elementTextContains(message, expectedMessage), 10000);
+  const actualMessage = await message.getText();
+  assert.ok(actualMessage.includes(expectedMessage), `Expected message "${expectedMessage}", but got "${actualMessage}"`);
+});
 

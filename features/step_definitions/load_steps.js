@@ -18,5 +18,14 @@ Given('the following products', async function (dataTable) {
     console.warn('Could not clear existing products, proceeding with creation:', error.message);
   }
 
-  
+  const products = dataTable.hashes();
+  for (const product of products) {
+    await axios.post(API_URL, {
+      name: product.name,
+      description: product.description,
+      price: parseFloat(product.price),
+      available: product.available.toLowerCase() === 'true',
+      category: product.category.toUpperCase()
+    });
+  }
 });
